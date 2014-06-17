@@ -31,6 +31,8 @@ public:
 public:
 	virtual uint64_t windowId() {return m_window_id;}
 	void redrawCursor(uint64_t col, uint64_t row);
+	virtual void redrawRuler(const QVariantMap& m);
+	virtual void redrawStatusLine(const QVariantMap& m);
 	virtual void updateLine(uint64_t row, const QVariantList& line, const QVariantMap& attrs);
 	virtual void insertLine(uint64_t row_index, uint64_t count);
 	virtual void deleteLine(uint64_t row_index, uint64_t count);

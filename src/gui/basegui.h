@@ -25,6 +25,7 @@ signals:
 protected:
 	void handleRedrawCursor(const QVariantMap&);
 	void handleRedrawRuler(const QVariantMap&);
+	void handleRedrawStatusLine(const QVariantMap&);
 	void handleRedrawUpdateLine(const QVariantMap&);
 	void handleRedrawInsertLine(const QVariantMap&);
 	void handleRedrawDeleteLine(const QVariantMap&);

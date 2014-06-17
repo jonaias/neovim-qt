@@ -45,9 +45,36 @@ void BaseGui::handleRedrawCursor(const QVariantMap& m)
 
 	emit redrawCursor(col, row);
 }
+
+/**
+ * FIXME: What are the valid attributes for the ruler?
+ */
 void BaseGui::handleRedrawRuler(const QVariantMap& m)
 {
-	// FIXME: do something w/ the ruler
+	if (!m.value("window_id").canConvert<quint64>()) {
+		qWarning() << "Received redraw:ruler event with invalid window_id";
+		return;
+	}
+	uint64_t window = m.value("window_id").toLongLong();
+	if (hasWindow(window)) {
+		getWindow(window)->redrawRuler(m);
+	} else {
+		qWarning() << "Received event" << __func__ << "for unknown window";
+	}
+}
+
+void BaseGui::handleRedrawStatusLine(const QVariantMap& m)
+{
+	if (!m.value("window_id").canConvert<quint64>()) {
+		qWarning() << "Received redraw:status_line event with invalid window_id";
+		return;
+	}
+	uint64_t window = m.value("window_id").toLongLong();
+	if (hasWindow(window)) {
+		getWindow(window)->redrawStatusLine(m);
+	} else {
+		qWarning() << "Received event" << __func__ << "for unknown window";
+	}
 }
 
 void BaseGui::handleRedrawUpdateLine(const QVariantMap& m)
@@ -205,6 +232,9 @@ void BaseGui::neovimNotification(const QByteArray& name, const QVariant& args)
 		return;
 	} else if (name == "redraw:ruler") {
 		handleRedrawRuler(args.toMap());
+		return;
+	} else if (name == "redraw:status_line") {
+		handleRedrawStatusLine(args.toMap());
 		return;
 	} else if (name == "redraw:update_line") {
 		handleRedrawUpdateLine(args.toMap());

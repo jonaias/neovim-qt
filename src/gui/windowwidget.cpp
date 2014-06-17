@@ -42,6 +42,16 @@ void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 
 }
 
+void WindowWidget::redrawRuler(const QVariantMap& m)
+{
+	qDebug() << __func__ << windowId() << m;
+}
+
+void WindowWidget::redrawStatusLine(const QVariantMap& m)
+{
+	qDebug() << __func__ << windowId() << m;
+}
+
 void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVariantMap& attrs)
 {
 	QString text;
