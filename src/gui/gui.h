@@ -2,7 +2,7 @@
 #define NEOVIM_QT_GUI_GUI
 
 #include "basegui.h"
-#include <QBoxLayout>
+#include <QSplitter>
 
 namespace NeovimQt {
 
@@ -19,10 +19,9 @@ protected:
 	virtual QList<uint64_t> windows();
 
 private:
-	void handleRedrawLayout(const QVariantMap& arg, QBoxLayout *);
+	void handleRedrawLayout(const QVariantMap& arg, QSplitter *);
 	// FIXME
-	QWidget *m_widget;
-	QBoxLayout *m_root_layout;
+	QSplitter *m_widget;
 	QHash<uint64_t,WindowWidget*> m_windows;
 };
 } // namespace;

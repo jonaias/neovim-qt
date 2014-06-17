@@ -1,8 +1,6 @@
 #include "gui.h"
 
 #include "windowwidget.h"
-#include <QHBoxLayout>
-#include <QVBoxLayout>
 
 namespace NeovimQt {
 
@@ -10,8 +8,7 @@ Gui::Gui(NeovimConnector *n, QObject *parent)
 :BaseGui(n, parent)
 {
 	// FIXME: root widget, margins, etc
-	m_widget = new QWidget();
-	m_root_layout = new QVBoxLayout(m_widget);
+	m_widget = new QSplitter();
 }
 
 void Gui::handleRedrawLayout(const QVariantMap& m)
@@ -33,28 +30,28 @@ void Gui::handleRedrawLayout(const QVariantMap& m)
 		handleRedrawLayout(m, m_root_layout);	
 	}*/
 
-	handleRedrawLayout(m, m_root_layout);	
+	handleRedrawLayout(m, m_widget);	
 	m_widget->show();
 }
 
 /**
  * Recursive layout builder
  */
-void Gui::handleRedrawLayout(const QVariantMap& m, QBoxLayout *layout)
+void Gui::handleRedrawLayout(const QVariantMap& m, QSplitter *splitter)
 {
 	QString type = m.value("type").toString();
 	if (type == "column") {
-		QVBoxLayout *column = new QVBoxLayout();
+		QSplitter *column = new QSplitter(Qt::Vertical);
+		splitter->addWidget(column);
 		foreach(const QVariant v, m.value("children").toList()) {
 			handleRedrawLayout(v.toMap(), column);
 		}
-		layout->addLayout(column);
 	} else if (type == "row") {
-		QHBoxLayout *row = new QHBoxLayout();
+		QSplitter *row = new QSplitter();
+		splitter->addWidget(row);
 		foreach(const QVariant v, m.value("children").toList()) {
 			handleRedrawLayout(v.toMap(), row);
 		}
-		layout->addLayout(row);
 	} else if (type == "leaf") {
 		// We are a leaf - i.e. a window
 		if (!m.value("window_id").canConvert<quint64>()) {
@@ -79,10 +76,10 @@ void Gui::handleRedrawLayout(const QVariantMap& m, QBoxLayout *layout)
 		if (hasWindow(window)) {
 			w = m_windows.value(window);
 		} else {
-			w = new WindowWidget(this, window, m_widget);
+			w = new WindowWidget(this, window, splitter);
 			m_windows.insert(window, w);
 		}
-		layout->addWidget(w);
+		splitter->addWidget(w);
 		w->redrawLayout(height, width);
 	} else {
 		qWarning() << "Unrecognised layout node: " << type;
