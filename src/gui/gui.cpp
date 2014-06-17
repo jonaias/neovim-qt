@@ -7,29 +7,12 @@ namespace NeovimQt {
 Gui::Gui(NeovimConnector *n, QObject *parent)
 :BaseGui(n, parent)
 {
-	// FIXME: root widget, margins, etc
 	m_widget = new QSplitter();
 }
 
 void Gui::handleRedrawLayout(const QVariantMap& m)
 {
 	QString type = m.value("type").toString();
-	// FIXME: remove layout
-	/*
-	if (type == "column") {
-		m_root_layout = new QVBoxLayout(m_widget);
-		foreach(const QVariant v, m.value("children").toList()) {
-			handleRedrawLayout(v.toMap(), m_root_layout);
-		}
-	} else if (type == "row") {
-		m_root_layout = new QHBoxLayout(m_widget);
-		foreach(const QVariant v, m.value("children").toList()) {
-			handleRedrawLayout(v.toMap(), m_root_layout);
-		}
-	} else if (type == "leaf") {
-		handleRedrawLayout(m, m_root_layout);	
-	}*/
-
 	handleRedrawLayout(m, m_widget);	
 	m_widget->show();
 }

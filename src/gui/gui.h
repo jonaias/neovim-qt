@@ -20,7 +20,6 @@ protected:
 
 private:
 	void handleRedrawLayout(const QVariantMap& arg, QSplitter *);
-	// FIXME
 	QSplitter *m_widget;
 	QHash<uint64_t,WindowWidget*> m_windows;
 };
