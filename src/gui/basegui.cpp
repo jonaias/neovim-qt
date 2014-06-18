@@ -10,7 +10,6 @@ BaseGui::BaseGui(NeovimConnector *connector, QObject *parent)
 			this, &BaseGui::neovimReady);
 	connect(m_nc, &NeovimConnector::notification,
 			this, &BaseGui::neovimNotification);
-	//connect(m_nc->neovimObject(), &Neovim::on_vim_get_windows);
 }
 
 void BaseGui::neovimReady()
@@ -171,8 +170,6 @@ void BaseGui::handleRedrawDeleteLine(const QVariantMap& m)
  * To implement your own GUI widgets/layout you should override this
  * method @see setWindow
  */
-
-
 void BaseGui::handleRedrawForegroundColor(const QVariantMap& m)
 {
 	// FIXME
