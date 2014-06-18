@@ -30,6 +30,8 @@ void BaseGui::neovimReady()
 	m_nc->neovimObject()->vim_subscribe("redraw:end");
 	// Ask Neovim to redraw everything for us
 	m_nc->neovimObject()->vim_request_screen();
+	// FIXME request_screen should happen after subscribe
+	// but we will wait for redraw:*
 }
 
 void BaseGui::handleRedrawCursor(const QVariantMap& m)
