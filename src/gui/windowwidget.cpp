@@ -99,7 +99,6 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 void WindowWidget::drawString(const QString& text, 
 		uint64_t row, uint64_t col, const QSet<QString>& attrs)
 {
-	// FIXME: rename this function
 	QPainter painter(&m_canvas);
 	QPoint pos(col*m_fm->width("W"), row*m_fm->height()+m_fm->ascent());
 	QRect rect(col*m_fm->width("W"), row*m_fm->height(),
@@ -178,7 +177,6 @@ void WindowWidget::redrawLayout(uint64_t height, uint64_t width)
 {
 	// TODO: there are cases when we cannot resize!
 	m_rows = height;
-	// FIXME: set width correctly
 	m_cols = width;
 	setFixedSize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
 	updateGeometry();
@@ -246,8 +244,8 @@ void WindowWidget::windowEnded(uint64_t row, uint64_t endrow, const QString& mar
 	for (uint64_t i=1; i<m_cols; i++ ) {
 		text += fill;
 	}
+	// TODO: all clearRow could be a single operation
 	for (uint64_t i=row; i<endrow; i++) {
-		// FIXME: clean this up please
 		clearRow(i);
 		drawString(text, i, 0);
 	}

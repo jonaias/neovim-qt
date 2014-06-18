@@ -59,8 +59,6 @@ void BaseGui::handleRedrawRuler(const QVariantMap& m)
 	uint64_t window = m.value("window_id").toLongLong();
 	if (hasWindow(window)) {
 		getWindow(window)->redrawRuler(m);
-	} else {
-		qWarning() << "Received event" << __func__ << "for unknown window";
 	}
 }
 
@@ -73,8 +71,6 @@ void BaseGui::handleRedrawStatusLine(const QVariantMap& m)
 	uint64_t window = m.value("window_id").toLongLong();
 	if (hasWindow(window)) {
 		getWindow(window)->redrawStatusLine(m);
-	} else {
-		qWarning() << "Received event" << __func__ << "for unknown window";
 	}
 }
 
@@ -103,11 +99,8 @@ void BaseGui::handleRedrawUpdateLine(const QVariantMap& m)
 		attrs = m.value("attributes").toMap();
 	}
 
-	// FIXME: consider moving this out of each method
 	if (hasWindow(window)) {
 		getWindow(window)->updateLine(row, m.value("line").toList(), attrs);
-	} else {
-		qWarning() << "Received event" << __func__ << "for unknown window";
 	}
 }
 
@@ -131,7 +124,6 @@ void BaseGui::handleRedrawInsertLine(const QVariantMap& m)
 	}
 	uint64_t count = m.value("count").toLongLong();
 
-	// FIXME
 	if (hasWindow(window)) {
 		getWindow(window)->insertLine(row, count);
 	}
@@ -157,7 +149,6 @@ void BaseGui::handleRedrawDeleteLine(const QVariantMap& m)
 	}
 	uint64_t count = m.value("count").toLongLong();
 
-	// FIXME
 	if (hasWindow(window)) {
 		getWindow(window)->deleteLine(row, count);
 	}
@@ -172,7 +163,6 @@ void BaseGui::handleRedrawDeleteLine(const QVariantMap& m)
  */
 void BaseGui::handleRedrawForegroundColor(const QVariantMap& m)
 {
-	// FIXME
 	foreach(uint64_t id, windows()) {
 		getWindow(id)->setForegroundColor(m.value("color").toString());
 	}
@@ -180,7 +170,6 @@ void BaseGui::handleRedrawForegroundColor(const QVariantMap& m)
 
 void BaseGui::handleRedrawBackgroundColor(const QVariantMap& m)
 {
-	// FIXME
 	foreach(uint64_t id, windows()) {
 		getWindow(id)->setBackgroundColor(m.value("color").toString());
 	}
@@ -218,7 +207,6 @@ void BaseGui::handleRedrawWinEnd(const QVariantMap& m)
 	}
 	QString fill = m.value("fill").toString();
 
-	// FIXME
 	if (hasWindow(window_id)) {
 		getWindow(window_id)->windowEnded(row, endrow, marker, fill);
 	}
