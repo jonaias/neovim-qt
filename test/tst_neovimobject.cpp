@@ -30,7 +30,6 @@ void TestNeovimObject::notification(const QByteArray& name, const QVariant& val)
 
 void TestNeovimObject::delayedSetup()
 {
-	m_c->setNeovimEventHandler(this);
 	NeovimQt::Neovim *n = m_c->neovimObject();
 
 	m_test_event_string = false;
