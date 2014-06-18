@@ -11,11 +11,6 @@ int main(int argc, char **argv)
 	qDebug() << s.waitForConnected();
 
 	NeovimQt::NeovimConnector c(&s);
-	/**
-	 * This is a terrible idea, but works well as an example the "quit"
-	 * event will be handled by the QCoreApplication::quit() slot :D
-	 */
-	c.setNeovimEventHandler(&app);
 
 	QObject::connect(&c, &NeovimQt::NeovimConnector::notification,
 			[](const QByteArray& name, const QVariant& args) {
