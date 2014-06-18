@@ -11,7 +11,6 @@ namespace NeovimQt {
 class WindowWidget: public QWidget, public BaseWindow
 {
 	Q_OBJECT
-	Q_ENUMS(PaintOpType)
 public:
 	WindowWidget(Gui *g, uint64_t window_id, QWidget *parent=0);
 	virtual QSize sizeHint() const;
