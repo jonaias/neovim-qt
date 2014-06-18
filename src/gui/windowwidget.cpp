@@ -35,17 +35,14 @@ void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 
 void WindowWidget::redrawStart()
 {
-	qDebug() << __func__;
 	m_paintingPaused = true;
 }
 
 void WindowWidget::redrawEnd()
 {
-	qDebug() << __func__;
 	m_paintingPaused = false;
-	while(!m_delayed_ops.isEmpty()) {
-		queuePaintOp(m_delayed_ops.dequeue());
-	}
+	update(m_pendingUpdates);
+	m_pendingUpdates = QRegion();
 }
 
 void WindowWidget::redrawRuler(const QVariantMap& m)
@@ -73,10 +70,7 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 		attrMap = attrsToMap(text, attrs);
 	}
 
-	PaintOp bgp(CLEAR_RECT);
-	bgp.rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), m_fm->height());
-	queuePaintOp(bgp);
+	clearRow(row);
 
 	if (attrMap.isEmpty()) {
 		// Paint line with no formatting
@@ -106,54 +100,79 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 void WindowWidget::queueUpdateLine(const QString& text, 
 		uint64_t row, uint64_t col, const QSet<QString>& attrs)
 {
-	PaintOp p(UPDATE_LINE);
-	p.text = text;
-	p.pos = QPoint(col*m_fm->width("W"), row*m_fm->height()+m_fm->ascent());
-	p.rect = QRect(col*m_fm->width("W"), row*m_fm->height(),
+	// FIXME: rename this function
+	QPainter painter(&m_canvas);
+	QPoint pos(col*m_fm->width("W"), row*m_fm->height()+m_fm->ascent());
+	QRect rect(col*m_fm->width("W"), row*m_fm->height(),
 			(text.size())*m_fm->width("W"), m_fm->height());
-	p.font = m_font;
+	QFont font = m_font;
+	QColor fg_color, bg_color;
 
 	foreach(QString name, attrs) {
 		if (name == "bold") {
-			p.font.setBold(true);
+			font.setBold(true);
 		} else if (name.startsWith("fg:")) {
-			QColor c(name.mid(3));
-			if (c.isValid()) {
-				p.fg_color = c;
-			}
+			fg_color = QColor(name.mid(3));
 		} else if (name.startsWith("bg:")) {
-			QColor c(name.mid(3));
-			if (c.isValid()) {
-				p.bg_color = c;
-			}
+			bg_color = QColor(name.mid(3));
 		} else if (name == "underline") {
-			p.font.setUnderline(true);
+			font.setUnderline(true);
 		} else if (name == "italic") {
-			p.font.setItalic(true);
+			font.setItalic(true);
 		} else {
 			qWarning() << "Unsupported text attribute" << name;
 		}
 	}
 
-	queuePaintOp(p);
+	if (bg_color.isValid()) {
+		painter.fillRect(rect, bg_color);
+	}
+	if (fg_color.isValid()) {
+		painter.setPen(fg_color);
+	} else {
+		painter.setPen(m_foreground);
+	}
+	painter.setFont(font);
+	painter.drawText(pos, text);
+	maybeUpdate(rect);
 }
 
 void WindowWidget::insertLine(uint64_t row, uint64_t count)
 {
-	PaintOp p(INSERT_LINE);
-	p.rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), m_rows*m_fm->height());
-	p.pos = QPoint(0, count*m_fm->height());
-	queuePaintOp(p);
+	// Aread to be moved
+	QRect rect(0, row*m_fm->height(),
+			m_cols*m_fm->width("W"), (m_rows-count)*m_fm->height());
+	// Where we placed the selected area
+	QPoint pos(0, (row+count)*m_fm->height());
+	QImage area = m_canvas.copy();
+
+	QPainter painter(&m_canvas);
+	painter.drawImage(pos, area);
+
+	QRect updateRect(
+		QPoint(0, (row+count)*m_fm->height()),
+		QPoint(m_cols*m_fm->width("W"), m_rows*m_fm->height())
+		);
+	maybeUpdate(rect);
 }
 
 void WindowWidget::deleteLine(uint64_t row, uint64_t count)
 {
-	PaintOp p(DELETE_LINE);
-	p.rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), m_rows*m_fm->height());
-	p.pos = QPoint(0, -count*m_fm->height());
-	queuePaintOp(p);
+	// Aread to be moved
+	QRect rect(
+		QPoint(0, (row+count)*m_fm->height()),
+		QPoint(m_cols*m_fm->width("W"), m_rows*m_fm->height())
+		);
+
+	// Where we will place the selected area
+	QPoint pos(0, row*m_fm->height());
+	QImage area = m_canvas.copy();
+	QPainter painter(&m_canvas);
+	painter.drawImage(pos, area, area.rect());
+
+	QRect updateRect(pos, 
+			QSize(m_cols*m_fm->width("W"), (m_rows-row-count)*m_fm->height()));
+	maybeUpdate(updateRect);
 }
 
 void WindowWidget::redrawLayout(uint64_t height, uint64_t width)
@@ -172,58 +191,32 @@ QSize WindowWidget::sizeHint() const
 	return QSize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
 }
 
-void WindowWidget::paintEvent ( QPaintEvent *ev )
+/**
+ * Fills an area with the background color
+ */
+void WindowWidget::clearRow(uint64_t row)
 {
-	QPainter painter(this);
-	while ( !m_ops.isEmpty() ) {
-		painter.save();
-		PaintOp op = m_ops.dequeue();
+	QPainter painter(&m_canvas);
+	QRect rect = QRect(0, row*m_fm->height(),
+			m_cols*m_fm->width("W"), m_fm->height());
+	painter.fillRect(rect, m_background);
+	maybeUpdate(rect);
+}
 
-		switch( op.type ) {
-		case INSERT_LINE:
-		case DELETE_LINE:
-			// Insert/Delete line just scroll the canvas
-			painter.restore();
-			painter.end();
-			this->scroll(op.pos.x(), op.pos.y(), op.rect);
-			painter.begin(this);
-			continue;
-		case UPDATE_LINE:
-			// FIXME: see CLEAR_RECT
-			if (op.bg_color.isValid()) {
-				painter.fillRect(op.rect, op.bg_color);
-			}
-			if (op.fg_color.isValid()) {
-				painter.setPen(op.fg_color);
-			} else {
-				painter.setPen(m_foreground);
-			}
-			painter.setFont(op.font);
-			painter.drawText( op.pos, op.text);
-			break;
-		case WINDOW_END:
-		case CLEAR_RECT:
-			painter.fillRect(op.rect, m_background);
-			break;
-		default:
-			qWarning() << "Unsupported paint op" << op.type;
-		}
-		painter.restore();
+void WindowWidget::maybeUpdate(const QRect& rect)
+{
+	if (m_paintingPaused) {
+		m_pendingUpdates += rect;
+	} else {
+		update(rect);
 	}
 }
 
-/**
- * Queue a painting operation on the widget
- */
-void WindowWidget::queuePaintOp(PaintOp op)
+void WindowWidget::paintEvent ( QPaintEvent *ev )
 {
-	if (m_paintingPaused) {
-		m_delayed_ops.enqueue(op);
-	} else {
-		m_ops.enqueue(op);
-		if (op.rect.isValid()) {
-			update(op.rect);
-		}
+	QPainter painter(this);
+	foreach(QRect rect, ev->region().rects()) {
+		painter.drawImage(rect, m_canvas, rect);
 	}
 }
 
@@ -256,25 +249,24 @@ void WindowWidget::windowEnded(uint64_t row, uint64_t endrow, const QString& mar
 	}
 	for (uint64_t i=row; i<endrow; i++) {
 		// FIXME: clean this up please
-		PaintOp bgp(WINDOW_END);
-		bgp.rect = QRect(0, i*m_fm->height(),
-				m_cols*m_fm->width("W"), (i+1)*m_fm->height());
-		queuePaintOp(bgp);
+		clearRow(i);
 		queueUpdateLine(text, i, 0);
 	}
 }
 
 void WindowWidget::resizeEvent(QResizeEvent *ev)
 {
+	QImage new_canvas = QImage( ev->size(), QImage::Format_ARGB32_Premultiplied);
 	if (!ev->oldSize().isValid()) {
-		// When first resizing fill up with the background
-		// color
-		PaintOp p(CLEAR_RECT);
-		p.rect = rect();
-		queuePaintOp(p);
+		// First resize ever
+		m_canvas = new_canvas;
 		return;
 	}
 
+	m_canvas = new_canvas;
+
+	/*
+	 * FIXME: paint margins and copy contents for resize
 	// Paint margins outside the Neovim window
 	int dx = ev->size().width() - (int)m_cols*m_fm->width("W");
 	int dy = ev->size().height() - (int)m_rows*m_fm->height();
@@ -297,34 +289,8 @@ void WindowWidget::resizeEvent(QResizeEvent *ev)
 			ev->size().width(), ev->size().height());
 		queuePaintOp(bgp);
 	}
+	*/
 }
 
 } // Namespace
-
-
-QDebug operator<<(QDebug dbg, const NeovimQt::WindowWidget::PaintOpType t)
-{
-	switch(t) {
-	case NeovimQt::WindowWidget::DELETE_LINE:
-		dbg.space() << "DELETE_LINE";
-		break;
-	case NeovimQt::WindowWidget::INSERT_LINE:
-		dbg.space() << "INSERT_LINE";
-		break;
-	case NeovimQt::WindowWidget::UPDATE_LINE:
-		dbg.space() << "UPDATE_LINE";
-		break;
-	case NeovimQt::WindowWidget::CLEAR_RECT:
-		dbg.space() << "CLEAR_RECT";
-		break;
-	case NeovimQt::WindowWidget::WINDOW_END:
-		dbg.space() << "WINDOW_END";
-		break;
-	case NeovimQt::WindowWidget::NOOP:
-		dbg.space() << "NOOP";
-		break;
-	}
-	return dbg.maybeSpace();
-}
-
 

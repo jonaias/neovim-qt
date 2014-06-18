@@ -14,21 +14,8 @@ class WindowWidget: public QWidget, public BaseWindow
 	Q_ENUMS(PaintOpType)
 public:
 	WindowWidget(Gui *g, uint64_t window_id, QWidget *parent=0);
-
-	enum PaintOpType {DELETE_LINE, INSERT_LINE, UPDATE_LINE, CLEAR_RECT, WINDOW_END, NOOP};
-	class PaintOp {
-	public:
-		PaintOp(PaintOpType t=NOOP) {type=t;}
-		PaintOpType type;
-		QPoint pos;
-		QRect rect;
-		QString text;
-		QFont font;
-		QColor fg_color, bg_color;
-
-	};
-
 	virtual QSize sizeHint() const;
+
 public:
 	virtual uint64_t windowId() {return m_window_id;}
 	void redrawCursor(uint64_t col, uint64_t row);
@@ -45,26 +32,29 @@ public:
 	virtual void redrawEnd();
 
 protected:
-	void queuePaintOp(PaintOp);
+	//void queuePaintOp(PaintOp);
 	void paintEvent(QPaintEvent *ev);
 	void resizeEvent(QResizeEvent *ev);
 	void queueUpdateLine(const QString& text, uint64_t row, 
 			uint64_t col, const QSet<QString>& attrs=QSet<QString>());
 
+	// Painting operations
+	void clearRow(uint64_t row);
+	void maybeUpdate(const QRect&);
+
+
 private:
-	QQueue<PaintOp> m_ops;
-	QQueue<PaintOp> m_delayed_ops;
 	Gui *m_gui;
 	QFont m_font;
 	QFontMetrics *m_fm;
 	uint64_t m_rows, m_cols, m_window_id;
 	QColor m_foreground, m_background;
 	bool m_paintingPaused;
+	QRegion m_pendingUpdates;
+	QImage m_canvas;
 };
 
 
 } // Namespace
-
-QDebug operator<<(QDebug dbg, const NeovimQt::WindowWidget::PaintOpType);
 
 #endif
