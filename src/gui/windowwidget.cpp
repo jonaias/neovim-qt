@@ -7,7 +7,7 @@ namespace NeovimQt {
 WindowWidget::WindowWidget(Gui *g, uint64_t window_id, QWidget *parent)
 :QWidget(parent), m_gui(g), 
 	m_rows(0), m_cols(0), m_window_id(window_id),
-	m_foreground(Qt::black),m_background(Qt::white)
+	m_foreground(Qt::black),m_background(Qt::white), m_paintingPaused(false)
 {
 	// Set default font
 	QFont f;
@@ -31,6 +31,21 @@ WindowWidget::WindowWidget(Gui *g, uint64_t window_id, QWidget *parent)
 void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 {
 
+}
+
+void WindowWidget::redrawStart()
+{
+	qDebug() << __func__;
+	m_paintingPaused = true;
+}
+
+void WindowWidget::redrawEnd()
+{
+	qDebug() << __func__;
+	m_paintingPaused = false;
+	while(!m_delayed_ops.isEmpty()) {
+		queuePaintOp(m_delayed_ops.dequeue());
+	}
 }
 
 void WindowWidget::redrawRuler(const QVariantMap& m)
@@ -202,9 +217,13 @@ void WindowWidget::paintEvent ( QPaintEvent *ev )
  */
 void WindowWidget::queuePaintOp(PaintOp op)
 {
-	m_ops.enqueue(op);
-	if (op.rect.isValid()) {
-		update(op.rect);
+	if (m_paintingPaused) {
+		m_delayed_ops.enqueue(op);
+	} else {
+		m_ops.enqueue(op);
+		if (op.rect.isValid()) {
+			update(op.rect);
+		}
 	}
 }
 

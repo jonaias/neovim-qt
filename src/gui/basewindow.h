@@ -28,6 +28,8 @@ public:
 	virtual void setBackgroundColor(const QString&)=0;
 	virtual void windowEnded(uint64_t row, uint64_t endrow,
 			const QString& marker, const QString& fill)=0;
+	virtual void redrawStart()=0;
+	virtual void redrawEnd()=0;
 };
 
 } // namespace

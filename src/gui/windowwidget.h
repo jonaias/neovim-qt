@@ -41,6 +41,8 @@ public:
 	virtual void setForegroundColor(const QString&);
 	virtual void setBackgroundColor(const QString&);
 	virtual void windowEnded(uint64_t row, uint64_t endrow, const QString& marker, const QString& fill);
+	virtual void redrawStart();
+	virtual void redrawEnd();
 
 protected:
 	void queuePaintOp(PaintOp);
@@ -51,11 +53,13 @@ protected:
 
 private:
 	QQueue<PaintOp> m_ops;
+	QQueue<PaintOp> m_delayed_ops;
 	Gui *m_gui;
 	QFont m_font;
 	QFontMetrics *m_fm;
 	uint64_t m_rows, m_cols, m_window_id;
 	QColor m_foreground, m_background;
+	bool m_paintingPaused;
 };
 
 

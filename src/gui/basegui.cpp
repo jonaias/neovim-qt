@@ -27,6 +27,8 @@ void BaseGui::neovimReady()
 	m_nc->neovimObject()->vim_subscribe("redraw:foreground_color");
 	m_nc->neovimObject()->vim_subscribe("redraw:background_color");
 	m_nc->neovimObject()->vim_subscribe("redraw:win_end");
+	m_nc->neovimObject()->vim_subscribe("redraw:start");
+	m_nc->neovimObject()->vim_subscribe("redraw:end");
 	// Ask Neovim to redraw everything for us
 	m_nc->neovimObject()->vim_request_screen();
 }
@@ -225,6 +227,20 @@ void BaseGui::handleRedrawWinEnd(const QVariantMap& m)
 	}
 }
 
+void BaseGui::handleRedrawStart()
+{
+	foreach(uint64_t id, windows()) {
+		getWindow(id)->redrawStart();
+	}
+}
+
+void BaseGui::handleRedrawEnd()
+{
+	foreach(uint64_t id, windows()) {
+		getWindow(id)->redrawEnd();
+	}
+}
+
 void BaseGui::neovimNotification(const QByteArray& name, const QVariant& args)
 {
 	if (name == "redraw:cursor") {
@@ -256,6 +272,12 @@ void BaseGui::neovimNotification(const QByteArray& name, const QVariant& args)
 		return;
 	} else if (name == "redraw:win_end") {
 		handleRedrawWinEnd(args.toMap());
+		return;
+	} else if (name == "redraw:start") {
+		handleRedrawStart();
+		return;
+	} else if (name == "redraw:end") {
+		handleRedrawEnd();
 		return;
 	} else {
 		qWarning() << "Received unknown event" << name;

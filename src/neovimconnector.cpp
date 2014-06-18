@@ -211,7 +211,7 @@ Object NeovimConnector::to_Object(const msgpack_object& obj, bool *failed)
 	QVariant res;
 	switch (obj.type) {
 	case MSGPACK_OBJECT_NIL:
-		res =  QVariant(QMetaType::Void, NULL);
+		res =  QVariant();
 		break;
 	case MSGPACK_OBJECT_BOOLEAN:
 		res = obj.via.boolean;

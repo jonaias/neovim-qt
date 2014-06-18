@@ -33,6 +33,8 @@ protected:
 	void handleRedrawForegroundColor(const QVariantMap&);
 	void handleRedrawBackgroundColor(const QVariantMap&);
 	void handleRedrawWinEnd(const QVariantMap&);
+	void handleRedrawStart();
+	void handleRedrawEnd();
 
 	virtual void handleRedrawLayout(const QVariantMap&)=0;
 
