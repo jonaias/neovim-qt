@@ -15,7 +15,7 @@ class WindowWidget: public QWidget, public BaseWindow
 public:
 	WindowWidget(Gui *g, uint64_t window_id, QWidget *parent=0);
 
-	enum PaintOpType {CLEAR_ALL, DELETE_LINE, INSERT_LINE, UPDATE_LINE, CLEAR_RECT, NOOP};
+	enum PaintOpType {DELETE_LINE, INSERT_LINE, UPDATE_LINE, CLEAR_RECT, WINDOW_END, NOOP};
 	class PaintOp {
 	public:
 		PaintOp(PaintOpType t=NOOP) {type=t;}
@@ -25,6 +25,7 @@ public:
 		QString text;
 		QFont font;
 		QColor fg_color, bg_color;
+
 	};
 
 	virtual QSize sizeHint() const;
@@ -55,10 +56,11 @@ private:
 	QFontMetrics *m_fm;
 	uint64_t m_rows, m_cols, m_window_id;
 	QColor m_foreground, m_background;
-	QPixmap m_canvas;
 };
 
 
 } // Namespace
+
+QDebug operator<<(QDebug dbg, const NeovimQt::WindowWidget::PaintOpType);
 
 #endif

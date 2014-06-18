@@ -28,15 +28,6 @@ WindowWidget::WindowWidget(Gui *g, uint64_t window_id, QWidget *parent)
 	setAttribute(Qt::WA_StaticContents, true);
 }
 
-void WindowWidget::insertLine(uint64_t row, uint64_t count)
-{
-	PaintOp p(INSERT_LINE);
-	p.rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), m_rows*m_fm->height());
-	p.pos = QPoint(0, count*m_fm->height());
-	queuePaintOp(p);
-}
-
 void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 {
 
@@ -69,7 +60,7 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 
 	PaintOp bgp(CLEAR_RECT);
 	bgp.rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), (row+1)*m_fm->height());
+			m_cols*m_fm->width("W"), m_fm->height());
 	queuePaintOp(bgp);
 
 	if (attrMap.isEmpty()) {
@@ -132,6 +123,15 @@ void WindowWidget::queueUpdateLine(const QString& text,
 	queuePaintOp(p);
 }
 
+void WindowWidget::insertLine(uint64_t row, uint64_t count)
+{
+	PaintOp p(INSERT_LINE);
+	p.rect = QRect(0, row*m_fm->height(),
+			m_cols*m_fm->width("W"), m_rows*m_fm->height());
+	p.pos = QPoint(0, count*m_fm->height());
+	queuePaintOp(p);
+}
+
 void WindowWidget::deleteLine(uint64_t row, uint64_t count)
 {
 	PaintOp p(DELETE_LINE);
@@ -186,6 +186,7 @@ void WindowWidget::paintEvent ( QPaintEvent *ev )
 			painter.setFont(op.font);
 			painter.drawText( op.pos, op.text);
 			break;
+		case WINDOW_END:
 		case CLEAR_RECT:
 			painter.fillRect(op.rect, m_background);
 			break;
@@ -236,7 +237,7 @@ void WindowWidget::windowEnded(uint64_t row, uint64_t endrow, const QString& mar
 	}
 	for (uint64_t i=row; i<endrow; i++) {
 		// FIXME: clean this up please
-		PaintOp bgp(CLEAR_RECT);
+		PaintOp bgp(WINDOW_END);
 		bgp.rect = QRect(0, i*m_fm->height(),
 				m_cols*m_fm->width("W"), (i+1)*m_fm->height());
 		queuePaintOp(bgp);
@@ -280,4 +281,31 @@ void WindowWidget::resizeEvent(QResizeEvent *ev)
 }
 
 } // Namespace
+
+
+QDebug operator<<(QDebug dbg, const NeovimQt::WindowWidget::PaintOpType t)
+{
+	switch(t) {
+	case NeovimQt::WindowWidget::DELETE_LINE:
+		dbg.space() << "DELETE_LINE";
+		break;
+	case NeovimQt::WindowWidget::INSERT_LINE:
+		dbg.space() << "INSERT_LINE";
+		break;
+	case NeovimQt::WindowWidget::UPDATE_LINE:
+		dbg.space() << "UPDATE_LINE";
+		break;
+	case NeovimQt::WindowWidget::CLEAR_RECT:
+		dbg.space() << "CLEAR_RECT";
+		break;
+	case NeovimQt::WindowWidget::WINDOW_END:
+		dbg.space() << "WINDOW_END";
+		break;
+	case NeovimQt::WindowWidget::NOOP:
+		dbg.space() << "NOOP";
+		break;
+	}
+	return dbg.maybeSpace();
+}
+
 
