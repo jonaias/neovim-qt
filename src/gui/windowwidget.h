@@ -32,16 +32,14 @@ public:
 	virtual void redrawEnd();
 
 protected:
-	//void queuePaintOp(PaintOp);
 	void paintEvent(QPaintEvent *ev);
 	void resizeEvent(QResizeEvent *ev);
-	void queueUpdateLine(const QString& text, uint64_t row, 
-			uint64_t col, const QSet<QString>& attrs=QSet<QString>());
 
 	// Painting operations
 	void clearRow(uint64_t row);
 	void maybeUpdate(const QRect&);
-
+	void drawString(const QString& text, uint64_t row, 
+			uint64_t col, const QSet<QString>& attrs=QSet<QString>());
 
 private:
 	Gui *m_gui;

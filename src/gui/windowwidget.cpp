@@ -74,7 +74,7 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 
 	if (attrMap.isEmpty()) {
 		// Paint line with no formatting
-		queueUpdateLine(text, row, 0);
+		drawString(text, row, 0);
 		return;
 	}
 	
@@ -85,19 +85,18 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 		if (pos == 0 || attrMap[pos] == attrMap[pos-1]) {
 			continue;
 		}
-		queueUpdateLine(text.mid(startSection, pos-startSection),
+		drawString(text.mid(startSection, pos-startSection),
 				row, startSection, attrMap[pos-1]);
 		startSection = pos;
 	}
-	queueUpdateLine(text.mid(startSection, pos-startSection),
+	drawString(text.mid(startSection, pos-startSection),
 			row, startSection, attrMap[pos-1]);
 }
 
 /**
- * A helper method to push text paint operations with
- * attributes
+ * Helper method to raw a string into an arbitrary position
  */
-void WindowWidget::queueUpdateLine(const QString& text, 
+void WindowWidget::drawString(const QString& text, 
 		uint64_t row, uint64_t col, const QSet<QString>& attrs)
 {
 	// FIXME: rename this function
@@ -250,7 +249,7 @@ void WindowWidget::windowEnded(uint64_t row, uint64_t endrow, const QString& mar
 	for (uint64_t i=row; i<endrow; i++) {
 		// FIXME: clean this up please
 		clearRow(i);
-		queueUpdateLine(text, i, 0);
+		drawString(text, i, 0);
 	}
 }
 
