@@ -262,5 +262,13 @@ void BaseGui::neovimNotification(const QByteArray& name, const QVariant& args)
 	}
 }
 
+/**
+ * Returns the Neovim objects from the underlying connector
+ */
+Neovim* BaseGui::neovimObject()
+{
+	return m_nc->neovimObject();
+}
+
 } // Namespace
 

@@ -11,6 +11,7 @@ class BaseGui: public QObject
 	Q_OBJECT
 public:
 	BaseGui(NeovimConnector *n, QObject *parent=0);
+	Neovim* neovimObject();
 
 signals:
 	void redrawCursor(uint64_t col, uint64_t row);
