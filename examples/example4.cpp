@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include "neovimconnector.h"
 #include <QLocalSocket>
+#include "auto/neovim.h"
 
 int main(int argc, char **argv)
 {

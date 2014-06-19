@@ -2,6 +2,7 @@
 #include "neovimconnector.h"
 #include <QLocalSocket>
 #include <QLineEdit>
+#include "auto/neovim.h"
 
 /**
  *

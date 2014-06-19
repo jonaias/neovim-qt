@@ -1,4 +1,4 @@
-// Auto generated Mon Jun 9 22:47:31 2014
+// Auto generated Thu Jun 19 11:10:11 2014
 enum FunctionId {
 	NEOVIM_FN_TABPAGE_GET_WINDOWS,
 	NEOVIM_FN_TABPAGE_GET_VAR,

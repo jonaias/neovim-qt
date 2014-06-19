@@ -2,6 +2,7 @@
 #include <QtTest/QtTest>
 #include <QLocalSocket>
 #include <neovimconnector.h>
+#include "auto/neovim.h"
 
 class TestNeovimObject: public QObject
 {
@@ -15,6 +16,7 @@ protected slots:
 
 private slots:
 	void initTestCase();
+	void test_callback();
 	void eventTypes();
 private:
 	NeovimQt::NeovimConnector *m_c;
@@ -66,6 +68,17 @@ void TestNeovimObject::eventTypes()
 	Q_ASSERT(m_test_event_string);
 	Q_ASSERT(m_test_event_uint);
 	Q_ASSERT(m_test_event_stringlist);
+}
+
+void TestNeovimObject::test_callback()
+{
+	bool success = false;
+	m_c->neovimObject()->vim_subscribe("redraw:*", [&success](){
+				success = true;
+			});
+
+	QTest::qWait(500);
+	Q_ASSERT(success);
 }
 
 void TestNeovimObject::initTestCase()

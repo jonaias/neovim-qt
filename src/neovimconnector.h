@@ -7,9 +7,10 @@
 #include <msgpack.h>
 #include "util.h"
 #include "function.h"
-#include "auto/neovim.h"
 
 namespace NeovimQt {
+
+class Neovim;
 
 /**
  * NeovimRequest objects track RPC calls

@@ -1,6 +1,7 @@
 #include "neovimconnector.h"
 #include <QtGlobal>
 #include <QMetaMethod>
+#include "auto/neovim.h"
 
 namespace NeovimQt {
 

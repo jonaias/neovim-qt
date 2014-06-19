@@ -72,8 +72,8 @@ bool generate_neovim_h(const QList<NeovimQt::Function> &ftable, QDir& dst)
 	out << "#define NEOVIM_QT_NEOVIMOBJ\n";
 	out << "#include \"function.h\"\n";
 	out << "#include <msgpack.h>\n";
-	out << "namespace NeovimQt {\n";
-	out << "class NeovimConnector;\n";
+	out << "#include \"neovimconnector.h\"\n";
+	out << "namespace NeovimQt {\n\n";
 	out << "class Neovim: public QObject\n";
 	out << "{\n\n";
 	out << "\tQ_OBJECT\n";
@@ -97,6 +97,51 @@ bool generate_neovim_h(const QList<NeovimQt::Function> &ftable, QDir& dst)
 		}
 		out << ");\n";
 	}
+	out << "private:\n";
+	foreach(NeovimQt::Function f, ftable) {
+		out << QString("\tNeovimRequest* r_%1(").arg(f.name);
+		for (int i=0; i<f.parameters.size(); i++) {
+			if (i) {
+				out << COMMA;
+			}
+			out << QString("%1 %2").arg(f.parameters.at(i).first, f.parameters.at(i).second);
+		}
+		out << ");\n";
+	}
+	// These need to be implemented inline at the headers
+	out << "public:\n";
+	foreach(NeovimQt::Function f, ftable) {
+		out << "\t";
+		out << "template<typename Functor>\n";
+		out << "\t";
+		out << QString("void %1(").arg(f.name);
+		for (int i=0; i<f.parameters.size(); i++) {
+			if (i) {
+				out << COMMA;
+			}
+			out << QString("%1 %2").arg(f.parameters.at(i).first, f.parameters.at(i).second);
+		}
+		if (f.parameters.size()) {
+			out << COMMA;
+		}
+		out << "Functor cbFunctor";
+		out << ")\n\t{\n";
+		out << "\t";
+		out << QString("\tNeovimRequest *r = r_%1(").arg(f.name);
+		for (int i=0; i<f.parameters.size(); i++) {
+			if (i) {
+				out << COMMA;
+			}
+			out << QString("%1").arg(f.parameters.at(i).second);
+		}
+		out << "\t";
+		out << ");\n";
+		out << "\t";
+		out << "\tconnect(r, &NeovimRequest::finished, cbFunctor);\n";
+		out << "\t";
+		out << "}\n\n";
+	}
+
 	out << "\nsignals:\n";
 	foreach(NeovimQt::Function f, ftable) {
 		out << QString("\tvoid %1(%2);\n").arg("on_" + f.name, f.return_type);
@@ -125,8 +170,29 @@ bool generate_neovim_cpp(const QList<NeovimQt::Function> &ftable, QDir& dst)
 	out << "Neovim::Neovim(NeovimConnector *c)\n";
 	out << ":m_c(c)\n{\n}\n\n";
 
+	// For each method we generate three functions
 	foreach(NeovimQt::Function f, ftable) {
+		// 1. Public slot "void <name>(...args)"
 		out << QString("void Neovim::%1(").arg(f.name);
+		for (int i=0; i<f.parameters.size(); i++) {
+			if (i) {
+				out << COMMA;
+			}
+			out << QString("%1 %2").arg(f.parameters.at(i).first, f.parameters.at(i).second);
+		}
+		out << ")\n{\n";
+		out << QString("\tr_%1(").arg(f.name);
+		for (int i=0; i<f.parameters.size(); i++) {
+			if (i) {
+				out << COMMA;
+			}
+			out << QString("%1").arg(f.parameters.at(i).second);
+		}
+		out << ");\n";
+		out << "}\n\n";
+
+		// 2. Private handler "void r_<name>(...args)"
+		out << QString("NeovimRequest* Neovim::r_%1(").arg(f.name);
 		for (int i=0; i<f.parameters.size(); i++) {
 			if (i) {
 				out << COMMA;
@@ -139,7 +205,11 @@ bool generate_neovim_cpp(const QList<NeovimQt::Function> &ftable, QDir& dst)
 		foreach(Param p, f.parameters) {
 			out << QString("\tm_c->send(%1);\n").arg(p.second);
 		}
+		out << "\treturn r;\n";
 		out << "}\n\n";
+
+		// 3. Public method with functor callback - but these
+		// are inline at the header @see generate_neovim_h()
 	}
 
 	// dispatcher

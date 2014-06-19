@@ -1,10 +1,11 @@
-// Auto generated Mon Jun 9 22:47:31 2014
+// Auto generated Thu Jun 19 11:10:11 2014
 #ifndef NEOVIM_QT_NEOVIMOBJ
 #define NEOVIM_QT_NEOVIMOBJ
 #include "function.h"
 #include <msgpack.h>
+#include "neovimconnector.h"
 namespace NeovimQt {
-class NeovimConnector;
+
 class Neovim: public QObject
 {
 
@@ -82,6 +83,520 @@ public slots:
 	void window_get_position(Window window);
 	void window_get_tabpage(Window window);
 	void window_is_valid(Window window);
+private:
+	NeovimRequest* r_tabpage_get_windows(Tabpage tabpage);
+	NeovimRequest* r_tabpage_get_var(Tabpage tabpage, String name);
+	NeovimRequest* r_tabpage_set_var(Tabpage tabpage, String name, Object value);
+	NeovimRequest* r_tabpage_get_window(Tabpage tabpage);
+	NeovimRequest* r_tabpage_is_valid(Tabpage tabpage);
+	NeovimRequest* r_vim_push_keys(String str);
+	NeovimRequest* r_vim_command(String str);
+	NeovimRequest* r_vim_command_output(String str);
+	NeovimRequest* r_vim_eval(String str);
+	NeovimRequest* r_vim_strwidth(String str);
+	NeovimRequest* r_vim_list_runtime_paths();
+	NeovimRequest* r_vim_change_directory(String dir);
+	NeovimRequest* r_vim_get_current_line();
+	NeovimRequest* r_vim_set_current_line(String line);
+	NeovimRequest* r_vim_del_current_line();
+	NeovimRequest* r_vim_get_var(String name);
+	NeovimRequest* r_vim_set_var(String name, Object value);
+	NeovimRequest* r_vim_get_vvar(String name);
+	NeovimRequest* r_vim_get_option(String name);
+	NeovimRequest* r_vim_set_option(String name, Object value);
+	NeovimRequest* r_vim_out_write(String str);
+	NeovimRequest* r_vim_err_write(String str);
+	NeovimRequest* r_vim_get_buffers();
+	NeovimRequest* r_vim_get_current_buffer();
+	NeovimRequest* r_vim_set_current_buffer(Buffer buffer);
+	NeovimRequest* r_vim_get_windows();
+	NeovimRequest* r_vim_get_current_window();
+	NeovimRequest* r_vim_set_current_window(Window window);
+	NeovimRequest* r_vim_get_tabpages();
+	NeovimRequest* r_vim_get_current_tabpage();
+	NeovimRequest* r_vim_set_current_tabpage(Tabpage tabpage);
+	NeovimRequest* r_vim_subscribe(String event);
+	NeovimRequest* r_vim_unsubscribe(String event);
+	NeovimRequest* r_vim_request_screen();
+	NeovimRequest* r_buffer_get_length(Buffer buffer);
+	NeovimRequest* r_buffer_get_line(Buffer buffer, Integer index);
+	NeovimRequest* r_buffer_set_line(Buffer buffer, Integer index, String line);
+	NeovimRequest* r_buffer_del_line(Buffer buffer, Integer index);
+	NeovimRequest* r_buffer_get_slice(Buffer buffer, Integer start, Integer end, Boolean include_start, Boolean include_end);
+	NeovimRequest* r_buffer_set_slice(Buffer buffer, Integer start, Integer end, Boolean include_start, Boolean include_end, StringArray replacement);
+	NeovimRequest* r_buffer_get_var(Buffer buffer, String name);
+	NeovimRequest* r_buffer_set_var(Buffer buffer, String name, Object value);
+	NeovimRequest* r_buffer_get_option(Buffer buffer, String name);
+	NeovimRequest* r_buffer_set_option(Buffer buffer, String name, Object value);
+	NeovimRequest* r_buffer_get_number(Buffer buffer);
+	NeovimRequest* r_buffer_get_name(Buffer buffer);
+	NeovimRequest* r_buffer_set_name(Buffer buffer, String name);
+	NeovimRequest* r_buffer_is_valid(Buffer buffer);
+	NeovimRequest* r_buffer_insert(Buffer buffer, Integer lnum, StringArray lines);
+	NeovimRequest* r_buffer_get_mark(Buffer buffer, String name);
+	NeovimRequest* r_window_get_buffer(Window window);
+	NeovimRequest* r_window_get_cursor(Window window);
+	NeovimRequest* r_window_set_cursor(Window window, Position pos);
+	NeovimRequest* r_window_get_height(Window window);
+	NeovimRequest* r_window_set_height(Window window, Integer height);
+	NeovimRequest* r_window_get_width(Window window);
+	NeovimRequest* r_window_set_width(Window window, Integer width);
+	NeovimRequest* r_window_get_var(Window window, String name);
+	NeovimRequest* r_window_set_var(Window window, String name, Object value);
+	NeovimRequest* r_window_get_option(Window window, String name);
+	NeovimRequest* r_window_set_option(Window window, String name, Object value);
+	NeovimRequest* r_window_get_position(Window window);
+	NeovimRequest* r_window_get_tabpage(Window window);
+	NeovimRequest* r_window_is_valid(Window window);
+public:
+	template<typename Functor>
+	void tabpage_get_windows(Tabpage tabpage, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_tabpage_get_windows(tabpage	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void tabpage_get_var(Tabpage tabpage, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_tabpage_get_var(tabpage, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void tabpage_set_var(Tabpage tabpage, String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_tabpage_set_var(tabpage, name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void tabpage_get_window(Tabpage tabpage, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_tabpage_get_window(tabpage	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void tabpage_is_valid(Tabpage tabpage, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_tabpage_is_valid(tabpage	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_push_keys(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_push_keys(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_command(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_command(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_command_output(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_command_output(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_eval(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_eval(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_strwidth(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_strwidth(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_list_runtime_paths(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_list_runtime_paths(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_change_directory(String dir, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_change_directory(dir	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_current_line(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_current_line(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_current_line(String line, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_current_line(line	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_del_current_line(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_del_current_line(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_var(String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_var(name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_var(String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_var(name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_vvar(String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_vvar(name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_option(String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_option(name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_option(String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_option(name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_out_write(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_out_write(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_err_write(String str, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_err_write(str	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_buffers(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_buffers(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_current_buffer(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_current_buffer(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_current_buffer(Buffer buffer, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_current_buffer(buffer	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_windows(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_windows(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_current_window(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_current_window(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_current_window(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_current_window(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_tabpages(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_tabpages(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_get_current_tabpage(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_get_current_tabpage(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_set_current_tabpage(Tabpage tabpage, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_set_current_tabpage(tabpage	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_subscribe(String event, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_subscribe(event	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_unsubscribe(String event, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_unsubscribe(event	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void vim_request_screen(Functor cbFunctor)
+	{
+		NeovimRequest *r = r_vim_request_screen(	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_length(Buffer buffer, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_length(buffer	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_line(Buffer buffer, Integer index, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_line(buffer, index	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_set_line(Buffer buffer, Integer index, String line, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_set_line(buffer, index, line	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_del_line(Buffer buffer, Integer index, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_del_line(buffer, index	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_slice(Buffer buffer, Integer start, Integer end, Boolean include_start, Boolean include_end, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_slice(buffer, start, end, include_start, include_end	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_set_slice(Buffer buffer, Integer start, Integer end, Boolean include_start, Boolean include_end, StringArray replacement, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_set_slice(buffer, start, end, include_start, include_end, replacement	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_var(Buffer buffer, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_var(buffer, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_set_var(Buffer buffer, String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_set_var(buffer, name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_option(Buffer buffer, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_option(buffer, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_set_option(Buffer buffer, String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_set_option(buffer, name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_number(Buffer buffer, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_number(buffer	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_name(Buffer buffer, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_name(buffer	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_set_name(Buffer buffer, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_set_name(buffer, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_is_valid(Buffer buffer, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_is_valid(buffer	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_insert(Buffer buffer, Integer lnum, StringArray lines, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_insert(buffer, lnum, lines	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void buffer_get_mark(Buffer buffer, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_buffer_get_mark(buffer, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_buffer(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_buffer(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_cursor(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_cursor(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_set_cursor(Window window, Position pos, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_set_cursor(window, pos	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_height(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_height(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_set_height(Window window, Integer height, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_set_height(window, height	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_width(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_width(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_set_width(Window window, Integer width, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_set_width(window, width	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_var(Window window, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_var(window, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_set_var(Window window, String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_set_var(window, name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_option(Window window, String name, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_option(window, name	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_set_option(Window window, String name, Object value, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_set_option(window, name, value	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_position(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_position(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_get_tabpage(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_get_tabpage(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
+	template<typename Functor>
+	void window_is_valid(Window window, Functor cbFunctor)
+	{
+		NeovimRequest *r = r_window_is_valid(window	);
+		connect(r, &NeovimRequest::finished, cbFunctor);
+	}
+
 
 signals:
 	void on_tabpage_get_windows(WindowArray);

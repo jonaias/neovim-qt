@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "auto/neovim.h"
 
 namespace NeovimQt {
 
@@ -40,6 +41,11 @@ void BaseGui::handleRedrawCursor(const QVariantMap& m)
 			!m.value("col").canConvert<quint64>() ||
 			!m.value("row").canConvert<quint64>()) {
 		qWarning() << "Invalid event for redraw:cursor" << m;
+		return;
+	}
+
+	if (!m.value("window_id").canConvert<quint64>()) {
+		qWarning() << "Received redraw:cursor event with invalid window_id";
 		return;
 	}
 

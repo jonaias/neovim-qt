@@ -2,6 +2,7 @@
 #include "neovimconnector.h"
 #include <QLocalSocket>
 #include <QMetaMethod>
+#include "auto/neovim.h"
 
 /**
  * This is the closest I can get to writing a 5 minute unit test without
