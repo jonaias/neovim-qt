@@ -22,7 +22,7 @@ WindowWidget::WindowWidget(Gui *g, uint64_t window_id, QWidget *parent)
 	m_font = f;
 	m_fm = new QFontMetrics(m_font);
 
-	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
 	setAttribute(Qt::WA_OpaquePaintEvent, true);
 	setAttribute(Qt::WA_StaticContents, true);
@@ -178,11 +178,14 @@ void WindowWidget::redrawLayout(uint64_t height, uint64_t width)
 	// TODO: there are cases when we cannot resize!
 	m_rows = height;
 	m_cols = width;
-	setFixedSize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
+	resize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
 	updateGeometry();
 	show();
 }
 
+/**
+ * This returns the Neovim window dimensions
+ */
 QSize WindowWidget::sizeHint() const
 {
 	return QSize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
@@ -251,42 +254,59 @@ void WindowWidget::windowEnded(uint64_t row, uint64_t endrow, const QString& mar
 	}
 }
 
+/**
+ * Handle Widget resize events - the WindowWidget should be the same size as the
+ * actual Neovim widget, but we do allow for any extra margin and paint it with
+ * the background color
+ *
+ * @see also @setSizePolicy() to manage the widget properly
+ */
 void WindowWidget::resizeEvent(QResizeEvent *ev)
 {
-	QImage new_canvas = QImage( ev->size(), QImage::Format_ARGB32_Premultiplied);
+	// TODO: we are still not asking Neovim for a resize if we grow smaller
+
+	// The canvas is ALWAYS as big as the Neovim window even if it does
+	// not fit in the real widget
+	QSize canvas_size;
+	canvas_size.setWidth(qMax(ev->size().width(), (int)m_cols*m_fm->width("W")));
+	canvas_size.setHeight(qMax(ev->size().height(), (int)m_rows*m_fm->height()));
+
+	QImage new_canvas = QImage( canvas_size, QImage::Format_ARGB32_Premultiplied);
 	if (!ev->oldSize().isValid()) {
-		// First resize ever
+		// First resize ever - just fill background color
 		m_canvas = new_canvas;
+		QPainter painter(&m_canvas);
+		painter.fillRect(m_canvas.rect(), m_background);
 		return;
 	}
 
-	m_canvas = new_canvas;
+	QPainter painter(&new_canvas);
+	// copy the old contents into the new canvas
+	painter.drawImage(QPoint(0,0), m_canvas);
 
-	/*
-	 * FIXME: paint margins and copy contents for resize
 	// Paint margins outside the Neovim window
 	int dx = ev->size().width() - (int)m_cols*m_fm->width("W");
 	int dy = ev->size().height() - (int)m_rows*m_fm->height();
 
 	if (dx > 0) {
-		PaintOp bgp(CLEAR_RECT);
-		bgp.rect = QRect(m_cols*m_fm->width("W"), 0,
+		QRect rect(m_cols*m_fm->width("W"), 0,
 			ev->size().width(), m_rows*m_fm->height());
-		queuePaintOp(bgp);
+		painter.fillRect( rect, m_background);
 	}
 	if (dy > 0) {
-		PaintOp bgp(CLEAR_RECT);
-		bgp.rect = QRect(0, m_rows*m_fm->height(),
+		QRect rect(0, m_rows*m_fm->height(),
 			m_cols*m_fm->width("W"), ev->size().height());
-		queuePaintOp(bgp);
+		painter.fillRect( rect, m_background);
 	}
+
 	if (dx > 0 && dy > 0) {
-		PaintOp bgp(CLEAR_RECT);
-		bgp.rect = QRect(m_cols*m_fm->width("W"), m_rows*m_fm->height(),
+		QRect rect(m_cols*m_fm->width("W"), m_rows*m_fm->height(),
 			ev->size().width(), ev->size().height());
-		queuePaintOp(bgp);
+		painter.fillRect( rect, m_background);
 	}
-	*/
+
+	painter.end();
+	m_canvas = new_canvas;
 }
 
 } // Namespace
