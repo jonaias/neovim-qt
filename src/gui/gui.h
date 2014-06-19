@@ -19,7 +19,7 @@ protected:
 	virtual QList<uint64_t> windows();
 
 private:
-	void handleRedrawLayout(const QVariantMap& arg, QSplitter *);
+	void handleRedrawLayout(const QVariantMap& arg, QSplitter *, QHash<uint64_t,WindowWidget*>&);
 	QSplitter *m_widget;
 	QHash<uint64_t,WindowWidget*> m_windows;
 };

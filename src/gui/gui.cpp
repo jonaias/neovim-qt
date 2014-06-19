@@ -12,28 +12,41 @@ Gui::Gui(NeovimConnector *n, QObject *parent)
 
 void Gui::handleRedrawLayout(const QVariantMap& m)
 {
-	QString type = m.value("type").toString();
-	handleRedrawLayout(m, m_widget);	
+	QHash<uint64_t,WindowWidget*> new_windows;
+	handleRedrawLayout(m, m_widget, new_windows);
+
+	foreach(uint64_t window_id, m_windows.keys()) {
+		if (!new_windows.contains(window_id)) {
+			WindowWidget *w = m_windows.take(window_id);
+			w->hide();
+			w->deleteLater();
+		}
+	}
+
+	m_windows = new_windows;
 	m_widget->show();
 }
 
 /**
  * Recursive layout builder
+ *
  */
-void Gui::handleRedrawLayout(const QVariantMap& m, QSplitter *splitter)
+void Gui::handleRedrawLayout(const QVariantMap& m, QSplitter *splitter,
+	QHash<uint64_t,WindowWidget*>& windows)
 {
+	// FIXME: we are leaking memory on the splitters
 	QString type = m.value("type").toString();
 	if (type == "column") {
 		QSplitter *column = new QSplitter(Qt::Vertical);
 		splitter->addWidget(column);
 		foreach(const QVariant v, m.value("children").toList()) {
-			handleRedrawLayout(v.toMap(), column);
+			handleRedrawLayout(v.toMap(), column, windows);
 		}
 	} else if (type == "row") {
 		QSplitter *row = new QSplitter();
 		splitter->addWidget(row);
 		foreach(const QVariant v, m.value("children").toList()) {
-			handleRedrawLayout(v.toMap(), row);
+			handleRedrawLayout(v.toMap(), row, windows);
 		}
 	} else if (type == "leaf") {
 		// We are a leaf - i.e. a window
@@ -60,8 +73,9 @@ void Gui::handleRedrawLayout(const QVariantMap& m, QSplitter *splitter)
 			w = m_windows.value(window);
 		} else {
 			w = new WindowWidget(this, window, splitter);
-			m_windows.insert(window, w);
 		}
+
+		windows.insert(window, w);
 		splitter->addWidget(w);
 		w->redrawLayout(height, width);
 	} else {
