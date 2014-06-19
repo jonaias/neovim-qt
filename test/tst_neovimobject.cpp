@@ -9,7 +9,6 @@ class TestNeovimObject: public QObject
 	Q_OBJECT
 public slots:
 	void notification(const QByteArray& name, const QVariant& v);
-	void test_event(const QVariant&);
 
 protected slots:
 	void delayedSetup();
@@ -25,9 +24,22 @@ private:
 	bool m_test_event_stringlist;
 };
 
-void TestNeovimObject::notification(const QByteArray& name, const QVariant& val)
+void TestNeovimObject::notification(const QByteArray& name, const QVariant& v)
 {
-	qDebug() << name << val;
+	if ( (QMetaType::Type)v.type() == QMetaType::QString ) {
+		QVERIFY(v.toString() == "WAT");
+		m_test_event_string = true;
+	}
+
+	if ( (QMetaType::Type)v.type() == QMetaType::ULongLong ) {
+		QVERIFY(v.toInt() == 42);
+		m_test_event_uint = true;
+	}
+
+	if (v.canConvert(QMetaType::QStringList)) {
+		QStringList l = v.toStringList();
+		m_test_event_stringlist = true;
+	}
 }
 
 void TestNeovimObject::delayedSetup()
@@ -42,32 +54,14 @@ void TestNeovimObject::delayedSetup()
 	n->vim_command(QString("call send_event(%1, \"test_event\", [\"one\", \"two\", \"\"])").arg(m_c->channel()));
 }
 
-void TestNeovimObject::test_event(const QVariant& v)
-{
-	if ( (QMetaType::Type)v.type() == QMetaType::QString ) {
-		Q_ASSERT(v.toString() == "WAT");
-		m_test_event_string = true;
-	}
-
-	if ( (QMetaType::Type)v.type() == QMetaType::ULongLong ) {
-		Q_ASSERT(v.toInt() == 42);
-		m_test_event_uint = true;
-	}
-
-	if (v.canConvert(QMetaType::QStringList)) {
-		QStringList l = v.toStringList();
-		m_test_event_stringlist = true;
-	}
-}
-
 //
 // Tests start here
 //
 void TestNeovimObject::eventTypes()
 {
-	Q_ASSERT(m_test_event_string);
-	Q_ASSERT(m_test_event_uint);
-	Q_ASSERT(m_test_event_stringlist);
+	QVERIFY(m_test_event_string);
+	QVERIFY(m_test_event_uint);
+	QVERIFY(m_test_event_stringlist);
 }
 
 void TestNeovimObject::test_callback()
@@ -78,16 +72,16 @@ void TestNeovimObject::test_callback()
 			});
 
 	QTest::qWait(500);
-	Q_ASSERT(success);
+	QVERIFY(success);
 }
 
 void TestNeovimObject::initTestCase()
 {
 	QLocalSocket *s = new QLocalSocket();
 	s->connectToServer(QLatin1String("/tmp/neovim"));
-	Q_ASSERT(s->waitForConnected());
+	QVERIFY(s->waitForConnected());
 	m_c = new NeovimQt::NeovimConnector(s);
-	Q_ASSERT(m_c->neovimObject());
+	QVERIFY(m_c->neovimObject());
 
 	connect(m_c, &NeovimQt::NeovimConnector::ready,
 			this, &TestNeovimObject::delayedSetup);
