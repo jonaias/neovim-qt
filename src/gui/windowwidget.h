@@ -40,6 +40,12 @@ protected:
 	void drawString(const QString& text, uint64_t row, 
 			uint64_t col, const QSet<QString>& attrs=QSet<QString>());
 
+	// Helper methods
+	QSize neovimWindowSize() const;
+	int neovimWindowWidth() const;
+	int neovimWindowHeight() const;
+	QPoint neovimWindowBottomRight() const;
+
 private:
 	Gui *m_gui;
 	QFont m_font;

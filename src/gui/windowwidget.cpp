@@ -28,6 +28,23 @@ WindowWidget::WindowWidget(Gui *g, uint64_t window_id, QWidget *parent)
 	setAttribute(Qt::WA_StaticContents, true);
 }
 
+int WindowWidget::neovimWindowWidth() const
+{
+	return m_cols*m_fm->width("W");
+}
+int WindowWidget::neovimWindowHeight() const
+{
+	return m_rows*m_fm->height();
+}
+QSize WindowWidget::neovimWindowSize() const
+{
+	return QSize(neovimWindowWidth(), neovimWindowHeight());
+}
+QPoint WindowWidget::neovimWindowBottomRight() const
+{
+	return QPoint(neovimWindowWidth(), neovimWindowHeight());
+}
+
 void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 {
 
@@ -139,7 +156,7 @@ void WindowWidget::insertLine(uint64_t row, uint64_t count)
 {
 	// Aread to be moved
 	QRect rect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), (m_rows-count)*m_fm->height());
+			neovimWindowWidth(), (m_rows-count)*m_fm->height());
 	// Where we placed the selected area
 	QPoint pos(0, (row+count)*m_fm->height());
 	QImage area = m_canvas.copy();
@@ -149,7 +166,7 @@ void WindowWidget::insertLine(uint64_t row, uint64_t count)
 
 	QRect updateRect(
 		QPoint(0, (row+count)*m_fm->height()),
-		QPoint(m_cols*m_fm->width("W"), m_rows*m_fm->height())
+		QPoint(neovimWindowWidth(), neovimWindowHeight())
 		);
 	maybeUpdate(rect);
 }
@@ -159,7 +176,7 @@ void WindowWidget::deleteLine(uint64_t row, uint64_t count)
 	// Aread to be moved
 	QRect rect(
 		QPoint(0, (row+count)*m_fm->height()),
-		QPoint(m_cols*m_fm->width("W"), m_rows*m_fm->height())
+		QPoint(neovimWindowWidth(), neovimWindowHeight())
 		);
 
 	// Where we will place the selected area
@@ -169,7 +186,7 @@ void WindowWidget::deleteLine(uint64_t row, uint64_t count)
 	painter.drawImage(pos, area, area.rect());
 
 	QRect updateRect(pos, 
-			QSize(m_cols*m_fm->width("W"), (m_rows-row-count)*m_fm->height()));
+			QSize(neovimWindowWidth(), (m_rows-row-count)*m_fm->height()));
 	maybeUpdate(updateRect);
 }
 
@@ -178,7 +195,7 @@ void WindowWidget::redrawLayout(uint64_t height, uint64_t width)
 	// TODO: there are cases when we cannot resize!
 	m_rows = height;
 	m_cols = width;
-	resize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
+	resize(neovimWindowSize());
 	updateGeometry();
 	show();
 }
@@ -188,7 +205,7 @@ void WindowWidget::redrawLayout(uint64_t height, uint64_t width)
  */
 QSize WindowWidget::sizeHint() const
 {
-	return QSize(m_cols*m_fm->width("W"), m_rows*m_fm->height());
+	return neovimWindowSize();
 }
 
 /**
@@ -198,7 +215,7 @@ void WindowWidget::clearRow(uint64_t row)
 {
 	QPainter painter(&m_canvas);
 	QRect rect = QRect(0, row*m_fm->height(),
-			m_cols*m_fm->width("W"), m_fm->height());
+			neovimWindowWidth(), m_fm->height());
 	painter.fillRect(rect, m_background);
 	maybeUpdate(rect);
 }
@@ -268,8 +285,8 @@ void WindowWidget::resizeEvent(QResizeEvent *ev)
 	// The canvas is ALWAYS as big as the Neovim window even if it does
 	// not fit in the real widget
 	QSize canvas_size;
-	canvas_size.setWidth(qMax(ev->size().width(), (int)m_cols*m_fm->width("W")));
-	canvas_size.setHeight(qMax(ev->size().height(), (int)m_rows*m_fm->height()));
+	canvas_size.setWidth(qMax(ev->size().width(), neovimWindowWidth()));
+	canvas_size.setHeight(qMax(ev->size().height(), neovimWindowHeight()));
 
 	QImage new_canvas = QImage( canvas_size, QImage::Format_ARGB32_Premultiplied);
 	if (!ev->oldSize().isValid()) {
@@ -285,22 +302,22 @@ void WindowWidget::resizeEvent(QResizeEvent *ev)
 	painter.drawImage(QPoint(0,0), m_canvas);
 
 	// Paint margins outside the Neovim window
-	int dx = ev->size().width() - (int)m_cols*m_fm->width("W");
-	int dy = ev->size().height() - (int)m_rows*m_fm->height();
+	int dx = ev->size().width() - neovimWindowWidth();
+	int dy = ev->size().height() - neovimWindowHeight();
 
 	if (dx > 0) {
-		QRect rect(m_cols*m_fm->width("W"), 0,
-			ev->size().width(), m_rows*m_fm->height());
+		QRect rect(neovimWindowWidth(), 0,
+			ev->size().width(), neovimWindowHeight());
 		painter.fillRect( rect, m_background);
 	}
 	if (dy > 0) {
-		QRect rect(0, m_rows*m_fm->height(),
-			m_cols*m_fm->width("W"), ev->size().height());
+		QRect rect(0, neovimWindowHeight(),
+			neovimWindowWidth(), ev->size().height());
 		painter.fillRect( rect, m_background);
 	}
 
 	if (dx > 0 && dy > 0) {
-		QRect rect(m_cols*m_fm->width("W"), m_rows*m_fm->height(),
+		QRect rect(neovimWindowWidth(),neovimWindowHeight(),
 			ev->size().width(), ev->size().height());
 		painter.fillRect( rect, m_background);
 	}
