@@ -44,6 +44,10 @@ QPoint WindowWidget::neovimWindowBottomRight() const
 {
 	return QPoint(neovimWindowWidth(), neovimWindowHeight());
 }
+int WindowWidget::neovimLineHeight() const
+{
+	return m_fm->height();
+}
 
 void WindowWidget::redrawCursor(uint64_t col, uint64_t row)
 {
@@ -111,15 +115,15 @@ void WindowWidget::updateLine(uint64_t row, const QVariantList& line, const QVar
 }
 
 /**
- * Helper method to raw a string into an arbitrary position
+ * Helper method to draw a string into an arbitrary position
  */
 void WindowWidget::drawString(const QString& text, 
 		uint64_t row, uint64_t col, const QSet<QString>& attrs)
 {
 	QPainter painter(&m_canvas);
-	QPoint pos(col*m_fm->width("W"), row*m_fm->height()+m_fm->ascent());
-	QRect rect(col*m_fm->width("W"), row*m_fm->height(),
-			(text.size())*m_fm->width("W"), m_fm->height());
+	QPoint pos(col*m_fm->width("W"), row*neovimLineHeight()+m_fm->ascent());
+	QRect rect(col*m_fm->width("W"), row*neovimLineHeight(),
+			(text.size())*m_fm->width("W"), neovimLineHeight());
 	QFont font = m_font;
 	QColor fg_color, bg_color;
 
@@ -155,17 +159,17 @@ void WindowWidget::drawString(const QString& text,
 void WindowWidget::insertLine(uint64_t row, uint64_t count)
 {
 	// Aread to be moved
-	QRect rect(0, row*m_fm->height(),
-			neovimWindowWidth(), (m_rows-count)*m_fm->height());
+	QRect rect(0, row*neovimLineHeight(),
+			neovimWindowWidth(), (m_rows-count)*neovimLineHeight());
 	// Where we placed the selected area
-	QPoint pos(0, (row+count)*m_fm->height());
+	QPoint pos(0, (row+count)*neovimLineHeight());
 	QImage area = m_canvas.copy();
 
 	QPainter painter(&m_canvas);
 	painter.drawImage(pos, area);
 
 	QRect updateRect(
-		QPoint(0, (row+count)*m_fm->height()),
+		QPoint(0, (row+count)*neovimLineHeight()),
 		QPoint(neovimWindowWidth(), neovimWindowHeight())
 		);
 	maybeUpdate(rect);
@@ -175,18 +179,18 @@ void WindowWidget::deleteLine(uint64_t row, uint64_t count)
 {
 	// Aread to be moved
 	QRect rect(
-		QPoint(0, (row+count)*m_fm->height()),
+		QPoint(0, (row+count)*neovimLineHeight()),
 		QPoint(neovimWindowWidth(), neovimWindowHeight())
 		);
 
 	// Where we will place the selected area
-	QPoint pos(0, row*m_fm->height());
+	QPoint pos(0, row*neovimLineHeight());
 	QImage area = m_canvas.copy();
 	QPainter painter(&m_canvas);
 	painter.drawImage(pos, area, area.rect());
 
 	QRect updateRect(pos, 
-			QSize(neovimWindowWidth(), (m_rows-row-count)*m_fm->height()));
+			QSize(neovimWindowWidth(), (m_rows-row-count)*neovimLineHeight()));
 	maybeUpdate(updateRect);
 }
 
@@ -214,8 +218,8 @@ QSize WindowWidget::sizeHint() const
 void WindowWidget::clearRow(uint64_t row)
 {
 	QPainter painter(&m_canvas);
-	QRect rect = QRect(0, row*m_fm->height(),
-			neovimWindowWidth(), m_fm->height());
+	QRect rect = QRect(0, row*neovimLineHeight(),
+			neovimWindowWidth(), neovimLineHeight());
 	painter.fillRect(rect, m_background);
 	maybeUpdate(rect);
 }

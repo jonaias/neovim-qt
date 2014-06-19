@@ -45,6 +45,7 @@ protected:
 	int neovimWindowWidth() const;
 	int neovimWindowHeight() const;
 	QPoint neovimWindowBottomRight() const;
+	int neovimLineHeight() const;
 
 private:
 	Gui *m_gui;
