@@ -39,12 +39,14 @@ void Gui::handleRedrawLayout(const QVariantMap& m, QSplitter *splitter,
 	if (type == "column") {
 		QSplitter *column = new QSplitter(Qt::Vertical);
 		splitter->addWidget(column);
+		splitter->setChildrenCollapsible(false);
 		foreach(const QVariant v, m.value("children").toList()) {
 			handleRedrawLayout(v.toMap(), column, windows);
 		}
 	} else if (type == "row") {
 		QSplitter *row = new QSplitter();
 		splitter->addWidget(row);
+		splitter->setChildrenCollapsible(false);
 		foreach(const QVariant v, m.value("children").toList()) {
 			handleRedrawLayout(v.toMap(), row, windows);
 		}

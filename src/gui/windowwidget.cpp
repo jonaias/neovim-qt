@@ -64,6 +64,13 @@ void WindowWidget::redrawEnd()
 	m_paintingPaused = false;
 	update(m_pendingUpdates);
 	m_pendingUpdates = QRegion();
+#ifdef DEBUG
+	// Dump all paint events as jpg files for debugging
+	if (getenv("NEOVIM_QT_DEBUG_WINDOWPAINT")) {
+		static quint64 count = 0;
+		grab().save(QString("debug-window-%1-%2.jpg").arg(windowId()).arg(count++));
+	}
+#endif
 }
 
 void WindowWidget::redrawRuler(const QVariantMap& m)

@@ -9,6 +9,7 @@ add_definitions(-Werror -Wall -Wextra -pedantic -Wno-unused-parameter -std=c++11
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 # Qt
 set(CMAKE_AUTOMOC ON)
