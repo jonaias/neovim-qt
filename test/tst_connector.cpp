@@ -29,6 +29,7 @@ void TestConnector::invalidSocket()
 	// we expect the connector to complain
 	QLocalSocket s;
 	NeovimQt::NeovimConnector *c = new NeovimQt::NeovimConnector(&s);
+	(void) c;
 	Q_ASSERT(c->errorCause() != NeovimQt::NeovimConnector::NoError);
 }
 
@@ -36,6 +37,7 @@ void TestConnector::spawn()
 {
 	bool ready = false;
 	NeovimQt::NeovimConnector *c = NeovimQt::NeovimConnector::spawn();
+	(void) c;
 	Q_ASSERT(c->errorCause() == NeovimQt::NeovimConnector::NoError);
 	connect(m_c, &NeovimQt::NeovimConnector::ready,
 		[&ready](){

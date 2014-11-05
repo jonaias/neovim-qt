@@ -39,6 +39,7 @@ void TestNeovimObject::delayedSetup()
 
 void TestNeovimObject::test_event(const QByteArray& name, const QVariantList& params)
 {
+	(void) name;
 	QVariant arg0 = params.at(0);
 	if ( (QMetaType::Type)arg0.type() == QMetaType::QByteArray ) {
 		Q_ASSERT(arg0.toString() == "WAT");

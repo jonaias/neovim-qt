@@ -23,6 +23,7 @@ void TestEncoding::encodeString()
 	m_c->neovimObject()->vim_get_var("testing-neovim-qt");
 	conn = connect(m_c->neovimObject(), &NeovimQt::Neovim::on_vim_get_var,
 			[&failed_to_set](const QVariant& v) {
+				(void) v;
 				Q_ASSERT(v == QByteArray("value"));
 			});
 	QTest::qWait(500);
@@ -33,6 +34,7 @@ void TestEncoding::encodeString()
 	m_c->neovimObject()->vim_get_var("testing-neovim-qt");
 	conn = connect(m_c->neovimObject(), &NeovimQt::Neovim::on_vim_get_var,
 			[&var_set](const QVariant& v) {
+				(void) v;
 				var_set = true;
 				Q_ASSERT(v == QVariant(QByteArray("value")));
 			});
@@ -50,6 +52,7 @@ void TestEncoding::map()
 	m_c->neovimObject()->vim_get_var("test-map");
 	conn = connect(m_c->neovimObject(), &NeovimQt::Neovim::on_vim_get_var,
 			[map](const QVariant& v) {
+				(void) v;
 				Q_ASSERT(v == map);
 			});
 	QTest::qWait(500);

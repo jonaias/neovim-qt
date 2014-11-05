@@ -367,6 +367,9 @@ void NeovimConnector::addClasses(const msgpack_object& ctable)
 void NeovimConnector::handleMetadataError(uint32_t msgid, Function::FunctionId,
 		const QString& msg, const msgpack_object& errobj)
 {
+	(void) msgid;
+	(void) errobj;
+	(void) msg;
 	setError( NoMetadata,
 		tr("Unable to get Neovim api information"));
 	// TODO: better error message (from result?)
@@ -381,6 +384,8 @@ void NeovimConnector::handleMetadataError(uint32_t msgid, Function::FunctionId,
  */
 void NeovimConnector::handleMetadata(uint32_t msgid, Function::FunctionId, const msgpack_object& result)
 {
+	(void) msgid;
+
 	if ( result.type != MSGPACK_OBJECT_ARRAY || 
 			result.via.array.size != 2 ||
 			result.via.array.ptr[0].type != MSGPACK_OBJECT_POSITIVE_INTEGER ||
@@ -577,6 +582,7 @@ void NeovimConnector::dispatch(msgpack_object& req)
  */
 void NeovimConnector::dispatchRequest(msgpack_object& req)
 {
+	(void) req;
 	qWarning() << "We do not support requests (yet)";
 }
 

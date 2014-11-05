@@ -79,6 +79,7 @@ void TestCallAllMethods::callAll()
 
 void TestCallAllMethods::connectionError(NeovimQt::NeovimConnector::NeovimError err)
 {
+	(void) err;
 	qDebug() << m_c->errorString();
 	Q_ASSERT(false);
 }
